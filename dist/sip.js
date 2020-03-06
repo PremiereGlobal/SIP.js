@@ -1,6 +1,6 @@
 /*!
  * 
- *  SIP version 0.14.6-836eae1fca87132b0cb494538813900ead54bb59
+ *  SIP version 0.14.6-7b29db2ad157baa7a156216e4a0834a769007795
  *  Copyright (c) 2014-2020 Junction Networks, Inc <http://www.onsip.com>
  *  Homepage: https://sipjs.com
  *  License: https://sipjs.com/license/
@@ -980,6 +980,15 @@ var Dialog = /** @class */ (function () {
             routeSet: routeSet
         }, extraHeaders, body);
         return message;
+    };
+    /**
+     * Used to synchronize the local sequence number of a dialog with an
+     * incoming response message. (Used in the case of a re-invite that
+     * goes through 401 authentication).
+     * @param message - Incoming response message to sync local sequence number.
+     */
+    Dialog.prototype.updateDialogSequenceNumber = function (message) {
+        this.dialogState.localSequenceNumber = message.cseq;
     };
     /**
      * If the remote sequence number was not empty, but the sequence number
@@ -8920,6 +8929,9 @@ var ReInviteUserAgentClient = /** @class */ (function (_super) {
     }
     ReInviteUserAgentClient.prototype.receiveResponse = function (message) {
         var _this = this;
+        if (!this.authenticationGuard(message)) {
+            return;
+        }
         var statusCode = message.statusCode ? message.statusCode.toString() : "";
         if (!statusCode) {
             throw new Error("Response status code undefined.");
@@ -8942,6 +8954,8 @@ var ReInviteUserAgentClient = /** @class */ (function (_super) {
                 }
                 break;
             case /^2[0-9]{2}$/.test(statusCode):
+                // Sync the dialog sequence number in the case of an authorization flow
+                this.dialog.updateDialogSequenceNumber(message);
                 // Update dialog signaling state with offer/answer in body
                 this.dialog.signalingStateTransition(message);
                 if (this.delegate && this.delegate.onAccept) {
@@ -12223,7 +12237,7 @@ var C;
 /* 80 */
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"name\":\"@pgi/sip.js\",\"title\":\"SIP.js\",\"description\":\"A simple, intuitive, and powerful JavaScript signaling library\",\"version\":\"0.14.6-836eae1fca87132b0cb494538813900ead54bb59\",\"license\":\"MIT\",\"main\":\"./lib/index.js\",\"types\":\"./lib/index.d.ts\",\"homepage\":\"https://sipjs.com\",\"author\":\"OnSIP <developer@onsip.com> (https://sipjs.com/aboutus/)\",\"contributors\":[{\"url\":\"https://github.com/onsip/SIP.js/blob/master/THANKS.md\"}],\"repository\":{\"type\":\"git\",\"url\":\"https://github.com/onsip/SIP.js.git\"},\"keywords\":[\"sip\",\"webrtc\",\"library\",\"websocket\",\"javascript\",\"typescript\"],\"dependencies\":{\"crypto-js\":\"^3.1.9-1\",\"tslib\":\"^1.10.0\"},\"devDependencies\":{\"@types/crypto-js\":\"^3.1.43\",\"@types/jasmine\":\"^3.3.13\",\"@types/node\":\"^12.0.8\",\"circular-dependency-plugin\":\"^5.0.2\",\"jasmine-core\":\"^3.4.0\",\"karma\":\"^4.1.0\",\"karma-chrome-launcher\":\"^2.2.0\",\"karma-cli\":\"^2.0.0\",\"karma-jasmine\":\"^2.0.1\",\"karma-jasmine-html-reporter\":\"^1.4.2\",\"karma-mocha-reporter\":\"^2.2.5\",\"karma-sourcemap-loader\":\"^0.3.7\",\"karma-webpack\":\"^4.0.2\",\"pegjs\":\"^0.10.0\",\"ts-loader\":\"^6.0.3\",\"ts-pegjs\":\"0.2.5\",\"tslint\":\"^5.17.0\",\"typescript\":\"^3.5.2\",\"webpack\":\"^4.34.0\",\"webpack-cli\":\"^3.3.4\"},\"engines\":{\"node\":\">=8.0\"},\"scripts\":{\"prebuild\":\"tslint -p tsconfig-base.json -c tslint.json\",\"generate-grammar\":\"node build/grammarGenerator.js\",\"build-reg-bundle\":\"webpack --progress --config build/webpack.config.js --env.buildType reg\",\"build-min-bundle\":\"webpack --progress --config build/webpack.config.js --env.buildType min\",\"build-bundles\":\"npm run build-reg-bundle && npm run build-min-bundle\",\"build-lib\":\"tsc -p src\",\"build-test\":\"tsc -p test\",\"copy-dist-files\":\"cp dist/sip.js dist/sip-$npm_package_version.js && cp dist/sip.min.js dist/sip-$npm_package_version.min.js\",\"build\":\"npm run generate-grammar && npm run build-lib && npm run build-reg-bundle && npm run build-min-bundle && npm run copy-dist-files\",\"browserTest\":\"npm run build-test && sleep 2 && open http://0.0.0.0:9876/debug.html & karma start --reporters kjhtml --no-single-run\",\"commandLineTest\":\"npm run build-test && karma start --reporters mocha --browsers ChromeHeadless --single-run\",\"buildAndTest\":\"npm run build && npm run commandLineTest\",\"buildAndBrowserTest\":\"npm run build && npm run browserTest\"}}");
+module.exports = JSON.parse("{\"name\":\"@pgi/sip.js\",\"title\":\"SIP.js\",\"description\":\"A simple, intuitive, and powerful JavaScript signaling library\",\"version\":\"0.14.6-7b29db2ad157baa7a156216e4a0834a769007795\",\"license\":\"MIT\",\"main\":\"./lib/index.js\",\"types\":\"./lib/index.d.ts\",\"homepage\":\"https://sipjs.com\",\"author\":\"OnSIP <developer@onsip.com> (https://sipjs.com/aboutus/)\",\"contributors\":[{\"url\":\"https://github.com/onsip/SIP.js/blob/master/THANKS.md\"}],\"repository\":{\"type\":\"git\",\"url\":\"https://github.com/onsip/SIP.js.git\"},\"keywords\":[\"sip\",\"webrtc\",\"library\",\"websocket\",\"javascript\",\"typescript\"],\"dependencies\":{\"crypto-js\":\"^3.1.9-1\",\"tslib\":\"^1.10.0\"},\"devDependencies\":{\"@types/crypto-js\":\"^3.1.43\",\"@types/jasmine\":\"^3.3.13\",\"@types/node\":\"^12.0.8\",\"circular-dependency-plugin\":\"^5.0.2\",\"jasmine-core\":\"^3.4.0\",\"karma\":\"^4.1.0\",\"karma-chrome-launcher\":\"^2.2.0\",\"karma-cli\":\"^2.0.0\",\"karma-jasmine\":\"^2.0.1\",\"karma-jasmine-html-reporter\":\"^1.4.2\",\"karma-mocha-reporter\":\"^2.2.5\",\"karma-sourcemap-loader\":\"^0.3.7\",\"karma-webpack\":\"^4.0.2\",\"pegjs\":\"^0.10.0\",\"ts-loader\":\"^6.0.3\",\"ts-pegjs\":\"0.2.5\",\"tslint\":\"^5.17.0\",\"typescript\":\"^3.5.2\",\"webpack\":\"^4.34.0\",\"webpack-cli\":\"^3.3.4\"},\"engines\":{\"node\":\">=8.0\"},\"scripts\":{\"prebuild\":\"tslint -p tsconfig-base.json -c tslint.json\",\"generate-grammar\":\"node build/grammarGenerator.js\",\"build-reg-bundle\":\"webpack --progress --config build/webpack.config.js --env.buildType reg\",\"build-min-bundle\":\"webpack --progress --config build/webpack.config.js --env.buildType min\",\"build-bundles\":\"npm run build-reg-bundle && npm run build-min-bundle\",\"build-lib\":\"tsc -p src\",\"build-test\":\"tsc -p test\",\"copy-dist-files\":\"cp dist/sip.js dist/sip-$npm_package_version.js && cp dist/sip.min.js dist/sip-$npm_package_version.min.js\",\"build\":\"npm run generate-grammar && npm run build-lib && npm run build-reg-bundle && npm run build-min-bundle && npm run copy-dist-files\",\"browserTest\":\"npm run build-test && sleep 2 && open http://0.0.0.0:9876/debug.html & karma start --reporters kjhtml --no-single-run\",\"commandLineTest\":\"npm run build-test && karma start --reporters mocha --browsers ChromeHeadless --single-run\",\"buildAndTest\":\"npm run build && npm run commandLineTest\",\"buildAndBrowserTest\":\"npm run build && npm run browserTest\"}}");
 
 /***/ }),
 /* 81 */

@@ -138,6 +138,13 @@ export declare class Dialog {
         body?: Body;
     }): OutgoingRequestMessage;
     /**
+     * Used to synchronize the local sequence number of a dialog with an
+     * incoming response message. (Used in the case of a re-invite that
+     * goes through 401 authentication).
+     * @param message - Incoming response message to sync local sequence number.
+     */
+    updateDialogSequenceNumber(message: IncomingResponseMessage): void;
+    /**
      * If the remote sequence number was not empty, but the sequence number
      * of the request is lower than the remote sequence number, the request
      * is out of order and MUST be rejected with a 500 (Server Internal
